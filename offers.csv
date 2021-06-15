@@ -1,0 +1,10 @@
+Item,Supplier,Unit Price,Project,Type,CountrySupplier,Region,CountryDestination,Capacity,PackagingType
+Item_0001,Clariant,187.27,33aad28d,Standard,USA,Asia,India,26089,TypeZero
+Item_0001,DuPont,199.09,33aad28d,Standard,USA,Asia,India,5391,BetaPackaging
+Item_0002,BASF,225.68,33aad28d,Standard,USA,SouthAmerica,Mexico,49576,Pack1
+Item_0002,DuPont,235.57,33aad28d,Standard,USA,SouthAmerica,Mexico,48661,BetaPackaging
+Item_0002,SABIC,200.27,33aad28d,Standard,Chile,Europe,Germany,49761,AlphaPackaging
+Item_0003,BASF,213.14,33aad28d,Critical,Chile,Europe,Germany,35099,Pack1
+Item_0003,DuPont,165.85,33aad28d,Critical,India,SouthAmerica,Mexico,12661,AlphaPackaging
+Item_0003,INEOS,219.17,33aad28d,Critical,India,SouthAmerica,Mexico,23567,TypeOne
+Item_0003,SABIC,211.18,33aad28d,Critical,India,SouthAmerica,Mexico,4434,TypeTwo
