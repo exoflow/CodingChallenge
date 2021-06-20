@@ -1,6 +1,0 @@
-Project;Supplier;Capacity;Condition
-33aad28d;Clariant;2000;{"CountrySupplier":"USA"}
-33aad28d;DuPont;3000;{"PackagingType":"BetaPackaging","Type":"Standard"}
-33aad28d;INEOS;3000;{"Type":"Critical","Region":"SouthAmerica","PackagingType":"TypeOne"}
-33aad28d;DuPont;3000;{}
-33aad28d;SABIC;3000;{}
