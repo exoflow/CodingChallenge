@@ -1,11 +1,14 @@
 import pandas as pd
 import json
+from tabulate import tabulate
 from sqlalchemy import create_engine
 
 ### Database functions ###
 
 def db_load_bundle_capacities(project_id: str) -> dict:
     try:
+        #Todo: finish function
+        pass
         #engine = create_engine('postgresql://...')
         #query=f'SELECT * FROM bundle_capacities WHERE project_id = '{project_id}'"
         #bundle_capacities = pd.to_dict(pd.read_sql_query(query, engine))
@@ -18,6 +21,7 @@ def db_load_bundle_capacities(project_id: str) -> dict:
 def db_update_bundle_capacities(bundle_capacities: dict) -> bool:
     project_id = bundle_capacities["project_id"]
     try:
+        #Todo: finish function
         #engine = create_engine('postgresql://...')
         #query=f'DELETE FROM bundle_capacities WHERE project_id = '{project_id}';"
         #engine.execute(query)
@@ -67,3 +71,7 @@ if __name__ == "__main__":
 
     with open('./input_bundle_capacities.json') as input_bundle_capacities_file:
         input_bundle_capacities = json.load(input_bundle_capacities_file)
+
+    #Pretty printing the dictionary as tabular data
+    bundle_item_capacities = pd.DataFrame(get_bundle_item_capacities(input_bundle_capacities, input_offers)["data"])
+    print(tabulate(bundle_item_capacities, bundle_item_capacities.columns, tablefmt="github")) 
