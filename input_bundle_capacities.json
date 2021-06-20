@@ -1,0 +1,39 @@
+{
+    "project_id": "33aad28d",
+    "data": [
+        {
+            "Supplier": "Clariant",
+            "Capacity": 2000,
+            "Condition": {
+                "CountrySupplier": "USA"
+            }
+        },
+        {
+            "Supplier": "DuPont",
+            "Capacity": 3000,
+            "Condition": {
+                "PackagingType": "BetaPackaging",
+                "Type": "Standard"
+            }
+        },
+        {
+            "Supplier": "INEOS",
+            "Capacity": 3000,
+            "Condition": {
+                "Type": "Critical",
+                "Region": "SouthAmerica",
+                "PackagingType": "TypeOne"
+            }
+        },
+        {
+            "Supplier": "DuPont",
+            "Capacity": 3000,
+            "Condition": {}
+        },
+        {
+            "Supplier": "SABIC",
+            "Capacity": 3000,
+            "Condition": {}
+        }
+    ]
+}

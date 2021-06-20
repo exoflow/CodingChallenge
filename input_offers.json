@@ -1,0 +1,113 @@
+{
+  "project_id": "33aad28d",
+  "data": [
+    {
+      "OfferId": 1,
+      "Item": "Item_0001",
+      "Supplier": "Clariant",
+      "Unit Price": 187.27,
+      "Type": "Standard",
+      "CountrySupplier": "USA",
+      "Region": "Asia",
+      "CountryDestination": "India",
+      "Capacity": 26089,
+      "PackagingType": "TypeZero"
+    },
+    {
+      "OfferId": 2,
+      "Item": "Item_0001",
+      "Supplier": "DuPont",
+      "Unit Price": 199.09,
+      "Type": "Standard",
+      "CountrySupplier": "USA",
+      "Region": "Asia",
+      "CountryDestination": "India",
+      "Capacity": 5391,
+      "PackagingType": "BetaPackaging"
+    },
+    {
+      "OfferId": 3,
+      "Item": "Item_0002",
+      "Supplier": "BASF",
+      "Unit Price": 225.68,
+      "Type": "Standard",
+      "CountrySupplier": "USA",
+      "Region": "SouthAmerica",
+      "CountryDestination": "Mexico",
+      "Capacity": 49576,
+      "PackagingType": "Pack1"
+    },
+    {
+      "OfferId": 4,
+      "Item": "Item_0002",
+      "Supplier": "DuPont",
+      "Unit Price": 235.57,
+      "Type": "Standard",
+      "CountrySupplier": "USA",
+      "Region": "SouthAmerica",
+      "CountryDestination": "Mexico",
+      "Capacity": 48661,
+      "PackagingType": "BetaPackaging"
+    },
+    {
+      "OfferId": 5,
+      "Item": "Item_0002",
+      "Supplier": "SABIC",
+      "Unit Price": 200.27,
+      "Type": "Standard",
+      "CountrySupplier": "Chile",
+      "Region": "Europe",
+      "CountryDestination": "Germany",
+      "Capacity": 49761,
+      "PackagingType": "AlphaPackaging"
+    },
+    {
+      "OfferId": 6,
+      "Item": "Item_0003",
+      "Supplier": "BASF",
+      "Unit Price": 213.14,
+      "Type": "Critical",
+      "CountrySupplier": "Chile",
+      "Region": "Europe",
+      "CountryDestination": "Germany",
+      "Capacity": 35099,
+      "PackagingType": "Pack1"
+    },
+    {
+      "OfferId": 7,
+      "Item": "Item_0003",
+      "Supplier": "DuPont",
+      "Unit Price": 165.85,
+      "Type": "Critical",
+      "CountrySupplier": "India",
+      "Region": "SouthAmerica",
+      "CountryDestination": "Mexico",
+      "Capacity": 12661,
+      "PackagingType": "AlphaPackaging"
+    },
+    {
+      "OfferId": 8,
+      "Item": "Item_0003",
+      "Supplier": "INEOS",
+      "Unit Price": 219.17,
+      "Type": "Critical",
+      "CountrySupplier": "India",
+      "Region": "SouthAmerica",
+      "CountryDestination": "Mexico",
+      "Capacity": 23567,
+      "PackagingType": "TypeOne"
+    },
+    {
+      "OfferId": 9,
+      "Item": "Item_0003",
+      "Supplier": "SABIC",
+      "Unit Price": 211.18,
+      "Type": "Critical",
+      "CountrySupplier": "India",
+      "Region": "SouthAmerica",
+      "CountryDestination": "Mexico",
+      "Capacity": 4434,
+      "PackagingType": "TypeTwo"
+    }
+  ]
+}
