@@ -1,69 +1,268 @@
-# Input format
+# 1 Coding challenge ideas and implementation
 
-## Table "offers" (including item level capacities)
+## 1 User Input
 
-|    | Item      | Supplier   |   Unit Price | Project   | Type     | CountrySupplier   | Region       | CountryDestination   |   Capacity | PackagingType   |
-|----|-----------|------------|--------------|-----------|----------|-------------------|--------------|----------------------|------------|-----------------|
-|  0 | Item_0001 | Clariant   |       187.27 | 33aad28d  | Standard | USA               | Asia         | India                |      26089 | TypeZero        |
-|  1 | Item_0001 | DuPont     |       199.09 | 33aad28d  | Standard | USA               | Asia         | India                |       5391 | BetaPackaging   |
-|  2 | Item_0002 | BASF       |       225.68 | 33aad28d  | Standard | USA               | SouthAmerica | Mexico               |      49576 | Pack1           |
-|  3 | Item_0002 | DuPont     |       235.57 | 33aad28d  | Standard | USA               | SouthAmerica | Mexico               |      48661 | BetaPackaging   |
-|  4 | Item_0002 | SABIC      |       200.27 | 33aad28d  | Standard | Chile             | Europe       | Germany              |      49761 | AlphaPackaging  |
-|  5 | Item_0003 | BASF       |       213.14 | 33aad28d  | Critical | Chile             | Europe       | Germany              |      35099 | Pack1           |
-|  6 | Item_0003 | DuPont     |       165.85 | 33aad28d  | Critical | India             | SouthAmerica | Mexico               |      12661 | AlphaPackaging  |
-|  7 | Item_0003 | INEOS      |       219.17 | 33aad28d  | Critical | India             | SouthAmerica | Mexico               |      23567 | TypeOne         |
-|  8 | Item_0003 | SABIC      |       211.18 | 33aad28d  | Critical | India             | SouthAmerica | Mexico               |       4434 | TypeTwo         |
+Assumption: Users (buyers, suppliers) upload data via file or enter it manually via web app. The data volume is "small" (few thousand rows), so the input can be parsed to JSON within a few seconds. The JSON format is required to communicate with the Python module.
 
+## 2 Input format for Python module
 
-## Table "bundle_capacities" (includes both global and bundle capacities)
-**Idea:** 
-- having both global and bundle capacities in 1 table, because global capacities can be regarded as a special type of bundle capacities
-- Using JSON to specify conditions, which integrates well to JS web applications and Python dictionaries, which have O(1) time complexity for search, insertion and deletion
+### 2.1 `bundle_capacities`: Global and bundle capacity constraints
 
-|    | Project   | Supplier   |   Capacity | Condition                                                             |
-|----|-----------|------------|------------|-----------------------------------------------------------------------|
-|  0 | 33aad28d  | Clariant   |       2000 | {"CountrySupplier":"USA"}                                             |
-|  1 | 33aad28d  | DuPont     |       3000 | {"PackagingType":"BetaPackaging","Type":"Standard"}                   |
-|  2 | 33aad28d  | INEOS      |       3000 | {"Type":"Critical","Region":"SouthAmerica","PackagingType":"TypeOne"} |
-|  3 | 33aad28d  | DuPont     |       3000 | {}                                                                    |
-|  4 | 33aad28d  | SABIC      |       3000 | {}                                                                    |
+```javascript
+{
+    "project_id": "33aad28d",
+    "data": [
+        {
+            "Supplier": "Clariant",
+            "Capacity": 2000,
+            "Condition": {
+                "CountrySupplier": "USA"
+            }
+        },
+        {
+            "Supplier": "DuPont",
+            "Capacity": 3000,
+            "Condition": {
+                "PackagingType": "BetaPackaging",
+                "Type": "Standard"
+            }
+        },
+        {
+            "Supplier": "INEOS",
+            "Capacity": 3000,
+            "Condition": {
+                "Type": "Critical",
+                "Region": "SouthAmerica",
+                "PackagingType": "TypeOne"
+            }
+        },
+        {
+            "Supplier": "DuPont",
+            "Capacity": 3000,
+            "Condition": {}
+        },
+        {
+            "Supplier": "SABIC",
+            "Capacity": 3000,
+            "Condition": {}
+        }
+    ]
+}
+```
 
-**In this example:**
-- Line 0 is a conditional capacity constraint with 1 constraint for CountrySupplier = "USA"
-- Line 1 is a conditional capacity constraint with 2 "AND" constraints PackagingType = "BetaPackaging" AND Type = "Standard"
-- Line 2 is a conditional capacity constraint with 3 "AND" constraints ...
-- Line 3 and 4 are global constraints (no condition --> applies to all items)
-
-
-# Data flow
-
-- Buyer submits list of offers (including item level capacities) --> stored in the database as table "offers" see schema above
-- Buyer submits additional global and bundle capacities (optional) --> stored in the database as table "bundle_capacities" see schema above
-- Python module loads table "offers" WHERE Project = "abc"
-- Python module loads table "bundle_capacities" WHERE Project = "abc"
-- Python module implements function get_single_item_capacity_constraints(), which selects the item level capacities from the offers table
-- Python module implements function get_bundle_item_capacity_constraints(), which translates bundle capacities of filter columns into item level capacities (array of items)
-- Python modules writes table "final_capacities" to database see schema below
-- Linear program loads "final_capacities" from database and uses them as constraints
-
-# Output table "final_capacities"
 **Idea:**
-- all capacties (item level, global, bundle) in 1 table 
-- items are represented as an array, multiple elements within the array represent global or bundle constraints, while single item array are simple item level constraints 
 
-|    | Supplier   | Item                                  |   Capacity | Project   | ConstraintType   | BundleConstraintOriginal                                                   |
-|----|------------|---------------------------------------|------------|-----------|------------------|----------------------------------------------------------------------------|
-|  0 | Clariant   | ['Item_0001']                         |      26089 | 33aad28d  | SingleItem       |                                                                            |
-|  1 | DuPont     | ['Item_0001']                         |       5391 | 33aad28d  | SingleItem       |                                                                            |
-|  2 | BASF       | ['Item_0002']                         |      49576 | 33aad28d  | SingleItem       |                                                                            |
-|  3 | DuPont     | ['Item_0002']                         |      48661 | 33aad28d  | SingleItem       |                                                                            |
-|  4 | SABIC      | ['Item_0002']                         |      49761 | 33aad28d  | SingleItem       |                                                                            |
-|  5 | BASF       | ['Item_0003']                         |      35099 | 33aad28d  | SingleItem       |                                                                            |
-|  6 | DuPont     | ['Item_0003']                         |      12661 | 33aad28d  | SingleItem       |                                                                            |
-|  7 | INEOS      | ['Item_0003']                         |      23567 | 33aad28d  | SingleItem       |                                                                            |
-|  8 | SABIC      | ['Item_0003']                         |       4434 | 33aad28d  | SingleItem       |                                                                            |
-|  9 | Clariant   | ['Item_0001']                         |       2000 | 33aad28d  | Bundle           | {'CountrySupplier': 'USA'}                                                 |
-| 10 | DuPont     | ['Item_0001' 'Item_0002']             |       3000 | 33aad28d  | Bundle           | {'PackagingType': 'BetaPackaging', 'Type': 'Standard'}                     |
-| 11 | INEOS      | ['Item_0003']                         |       3000 | 33aad28d  | Bundle           | {'Type': 'Critical', 'Region': 'SouthAmerica', 'PackagingType': 'TypeOne'} |
-| 12 | DuPont     | ['Item_0001' 'Item_0002' 'Item_0003'] |       3000 | 33aad28d  | Global           | {}                                                                         |
-| 13 | SABIC      | ['Item_0002' 'Item_0003']             |       3000 | 33aad28d  | Global           | {}                                                                         |
+- global and bundle capacities have the same input format, because global capacities can be regarded as a special type of bundle capacities. The only difference is the `Condition` key, which is empty for global capacity constraints
+- Using JSON integrates well with the web app (parsing files) and Python dictionaries, which have O(1) time complexity for search, insertion and deletion. The child keys within the `Condition` key are very flexible. 
+
+### 2.2 Offers
+
+```javascript
+{
+  "project_id": "33aad28d",
+  "data": [
+    {
+      "OfferId": 1,
+      "Item": "Item_0001",
+      "Supplier": "Clariant",
+      "Unit Price": 187.27,
+      "Type": "Standard",
+      "CountrySupplier": "USA",
+      "Region": "Asia",
+      "CountryDestination": "India",
+      "Capacity": 26089,
+      "PackagingType": "TypeZero"
+    },
+    {
+      "OfferId": 2,
+      "Item": "Item_0001",
+      "Supplier": "DuPont",
+      "Unit Price": 199.09,
+      "Type": "Standard",
+      "CountrySupplier": "USA",
+      "Region": "Asia",
+      "CountryDestination": "India",
+      "Capacity": 5391,
+      "PackagingType": "BetaPackaging"
+    },
+    {
+      "OfferId": 3,
+      "Item": "Item_0002",
+      "Supplier": "BASF",
+      "Unit Price": 225.68,
+      "Type": "Standard",
+      "CountrySupplier": "USA",
+      "Region": "SouthAmerica",
+      "CountryDestination": "Mexico",
+      "Capacity": 49576,
+      "PackagingType": "Pack1"
+    },
+    {
+      "OfferId": 4,
+      "Item": "Item_0002",
+      "Supplier": "DuPont",
+      "Unit Price": 235.57,
+      "Type": "Standard",
+      "CountrySupplier": "USA",
+      "Region": "SouthAmerica",
+      "CountryDestination": "Mexico",
+      "Capacity": 48661,
+      "PackagingType": "BetaPackaging"
+    },
+    {
+      "OfferId": 5,
+      "Item": "Item_0002",
+      "Supplier": "SABIC",
+      "Unit Price": 200.27,
+      "Type": "Standard",
+      "CountrySupplier": "Chile",
+      "Region": "Europe",
+      "CountryDestination": "Germany",
+      "Capacity": 49761,
+      "PackagingType": "AlphaPackaging"
+    },
+    {
+      "OfferId": 6,
+      "Item": "Item_0003",
+      "Supplier": "BASF",
+      "Unit Price": 213.14,
+      "Type": "Critical",
+      "CountrySupplier": "Chile",
+      "Region": "Europe",
+      "CountryDestination": "Germany",
+      "Capacity": 35099,
+      "PackagingType": "Pack1"
+    },
+    {
+      "OfferId": 7,
+      "Item": "Item_0003",
+      "Supplier": "DuPont",
+      "Unit Price": 165.85,
+      "Type": "Critical",
+      "CountrySupplier": "India",
+      "Region": "SouthAmerica",
+      "CountryDestination": "Mexico",
+      "Capacity": 12661,
+      "PackagingType": "AlphaPackaging"
+    },
+    {
+      "OfferId": 8,
+      "Item": "Item_0003",
+      "Supplier": "INEOS",
+      "Unit Price": 219.17,
+      "Type": "Critical",
+      "CountrySupplier": "India",
+      "Region": "SouthAmerica",
+      "CountryDestination": "Mexico",
+      "Capacity": 23567,
+      "PackagingType": "TypeOne"
+    },
+    {
+      "OfferId": 9,
+      "Item": "Item_0003",
+      "Supplier": "SABIC",
+      "Unit Price": 211.18,
+      "Type": "Critical",
+      "CountrySupplier": "India",
+      "Region": "SouthAmerica",
+      "CountryDestination": "Mexico",
+      "Capacity": 4434,
+      "PackagingType": "TypeTwo"
+    }
+  ]
+}
+```
+
+## 3 Python functions
+
+### 3.1 Adding `Item` and `OfferId` to bundle_capacities
+
+```python
+def get_bundle_capacities_with_items(bundle_capacities: dict, offers:dict) -> dict:
+    bundle_capacities_with_items = bundle_capacities.copy()
+    
+    for bundle_capacity in bundle_capacities_with_items["data"]:
+        condition = bundle_capacity["Condition"]
+        
+        #Global
+        if condition == {}:
+            relevant_items = set(offer["Item"] for offer in offers["data"] if offer["Supplier"] == bundle_capacity["Supplier"])
+            relevant_offer_ids = set(offer["OfferId"] for offer in offers["data"] if offer["Supplier"] == bundle_capacity["Supplier"])
+        
+        #Bundle
+        else:
+            for attribute, value in condition.items():    
+                relevant_items = set(offer["Item"] for offer in offers["data"] if (offer["Supplier"] == bundle_capacity["Supplier"] and offer[attribute] == value))
+                relevant_offer_ids = set(offer["OfferId"] for offer in offers["data"] if (offer["Supplier"] == bundle_capacity["Supplier"] and offer[attribute] == value))
+
+        bundle_capacity["Item"] = relevant_items
+        bundle_capacity["OfferId"] = relevant_offer_ids
+    
+    return bundle_capacities_with_items
+        
+```
+
+### 3.2 Getting single item capacity constraints from offers
+
+```python
+def get_single_item_capacities(offers: dict) -> dict:
+    single_item_capacities = {}
+    single_item_capacities["project_id"] = offers["project_id"]
+    single_item_capacities["data"] = [{"Supplier":offer["Supplier"], "Capacity":offer["Capacity"], "Item":offer["Item"], "OfferId":offer["OfferId"], } for offer in input_offers["data"]]
+    return single_item_capacities
+```
+
+## 4. Using `single_item_capacities` and `bundle_capacities_with_items` for efficient lookups
+
+- fetching all regional and global capacities with the offers they are connected to:
+
+```python
+get_bundle_item_capacities(input_bundle_capacities, input_offers)["data"]
+```
+
+- fetching all capacities a certain offer is subject to:
+
+```python
+offer_id = 4 #also works with an item name: item = "Item_0001"
+bundle_item_capacities = get_bundle_item_capacities(input_bundle_capacities, input_offers)["data"]
+[constraint for constraint in bundle_item_capacities if offer_id in constraint["OfferId"]]
+```
+
+**Further improvements:**
+The offer_ids for a bundle capacity constraint are collected in a set() as data structure which has lookups (as well as insert and delete) in O(1). However, the capacity objects are collected in a list which is looped through in O(n) time. For further performance improvements the `bundle_item_capacities` dictionary can be rearragned to use `OfferIds` or `Item` as a key which will speed up lookups for a specific offer (but won't make a difference when all regional and global capacities are fetched).
+
+## 5. Persisting capacities in a relational database
+
+- dictionaries can be easily converted to tabular data and stored in a relational database. For example:
+
+```python
+pd.DataFrame(bundle_item_capacities)
+```
+
+|    | Supplier   |   Capacity | Condition                                                                  | Item                                    | OfferId   |
+|----|------------|------------|----------------------------------------------------------------------------|-----------------------------------------|-----------|
+|  0 | Clariant   |       2000 | {'CountrySupplier': 'USA'}                                                 | {'Item_0001'}                           | {1}       |
+|  1 | DuPont     |       3000 | {'PackagingType': 'BetaPackaging', 'Type': 'Standard'}                     | {'Item_0001', 'Item_0002'}              | {2, 4}    |
+|  2 | INEOS      |       3000 | {'Type': 'Critical', 'Region': 'SouthAmerica', 'PackagingType': 'TypeOne'} | {'Item_0003'}                           | {8}       |
+|  3 | DuPont     |       3000 | {}                                                                         | {'Item_0001', 'Item_0002', 'Item_0003'} | {2, 4, 7} |
+|  4 | SABIC      |       3000 | {}                                                                         | {'Item_0002', 'Item_0003'}              | {9, 5}    |
+
+- It's also possible to explode the Condition column to store atomic values but this can cause many null values and therefore inefficient storage
+
+```python
+pd.json_normalize(bundle_item_capacities).fillna("")
+```
+
+|    | Supplier   |   Capacity | Item                                    | OfferId   | Condition.CountrySupplier   | Condition.PackagingType   | Condition.Type   | Condition.Region   |
+|----|------------|------------|-----------------------------------------|-----------|-----------------------------|---------------------------|------------------|--------------------|
+|  0 | Clariant   |       2000 | {'Item_0001'}                           | {1}       | USA                         |                           |                  |                    |
+|  1 | DuPont     |       3000 | {'Item_0001', 'Item_0002'}              | {2, 4}    |                             | BetaPackaging             | Standard         |                    |
+|  2 | INEOS      |       3000 | {'Item_0003'}                           | {8}       |                             | TypeOne                   | Critical         | SouthAmerica       |
+|  3 | DuPont     |       3000 | {'Item_0001', 'Item_0002', 'Item_0003'} | {2, 4, 7} |                             |                           |                  |                    |
+|  4 | SABIC      |       3000 | {'Item_0002', 'Item_0003'}              | {9, 5}    |                             |                           |                  |                    |
+
+## 6. Further ideas
+
+- Single item capacities and bundle item capacities can be unioned into 1 dataset if they are most often needed together
+
+
