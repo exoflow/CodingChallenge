@@ -1,0 +1,4 @@
+pandas==1.2.4
+tabulate==0.8.9
+jsonschema==3.2.0
+SQLAlchemy==1.4.18
